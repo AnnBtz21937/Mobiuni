@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comunidade - MobiUni</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-logo">MobiUni</div>
+    <ul class="navbar-menu">
+        <li><button id="botao-contraste" class="botao-verde-menta">Alto Contraste</button></li>
+        <li><a href="/index">Mapa</a></li>
+        <li><a href="/sobrenos">Sobre Nós</a></li>
+        <li><a href="/">Sair</a></li>
+    </ul>
+</nav>
+
+<!-- Botões de acessibilidade logo após a navbar -->
+<div class="leitura-acessivel">
+    <button id="btn-leitura" aria-label="Ler conteúdo da página">🔊 Ler Página</button>
+    <button id="btn-parar" aria-label="Parar leitura em voz alta">⛔ Parar Leitura</button>
+</div>
+
+<div class="container">
+    <!-- Seção do usuário e sugestões de amizade -->
+    <aside class="sidebar-esquerda">
+        <div class="usuario-logado">
+            <img src="/img/usuarios/user1.jpg" alt="Seu avatar" class="avatar-perfil">
+            <strong>@ana_inclusiva</strong>
+            <p class="bio">Estudante e ativista pela acessibilidade</p>
+
+            <div class="social-info">
+                <span><strong>128</strong> seguidores</span>
+                <span><strong>87</strong> seguindo</span>
+            </div>
+
+            <div class="medalhas">
+                <span title="Postagens populares">🏅</span>
+                <span title="Denúncia confirmada">🚨</span>
+                <span title="Colaborador local">🌍</span>
+            </div>
+
+            <a href="/perfil" class="botao-perfil">Ver Perfil</a>
+        </div>
+
+        <div class="sugestoes-amizade">
+            <h3>👥 Sugestões para seguir</h3>
+            <div class="amigo">
+                <img src="/img/usuarios/user7.jpg" alt="João">
+                <span>@joao_pcd</span>
+                <button class="seguir">Seguir</button>
+            </div>
+            <div class="amigo">
+                <img src="/img/usuarios/user8.jpg" alt="Maria">
+                <span>@maria.libras</span>
+                <button class="seguir">Seguir</button>
+            </div>
+            <div class="comunidades">
+                <h3> Comunidades</h3>
+                <ul>
+                    <li><a href="/comunidades/acessibilidade-slz">♿ Acessibilidade SLZ</a></li>
+                    <li><a href="/comunidades/inclusao-cognitiva">🧠 Inclusão Cognitiva</a></li>
+                    <li><a href="/comunidades/bairro-renascenca">🌍 Bairro Renascença</a></li>
+                    <li><a href="/comunidades" class="ver-todas">+ Ver todas</a></li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Feed -->
+    <section class="feed">
+        <form action="/comunidade/nova" method="post" class="nova-postagem-twitter" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <input type="hidden" name="usuarioId" value="1" />
+
+            <textarea id="texto" name="texto" placeholder="Compartilhe algo..." rows="3" required
+                      style="resize: none; padding: 10px; font-size: 14px; border-radius: 8px; border: 1px solid #ccc; width: 100%;"></textarea>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" name="bairro" placeholder="Bairro" required
+                       style="flex: 1 1 200px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+
+                <select name="tipoId" required
+                        style="flex: 1 1 180px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                    <option value="">Tipo de deficiência</option>
+                    <option value="1">Física</option>
+                    <option value="2">Visual</option>
+                    <option value="3">Auditiva</option>
+                    <!-- Adicione os outros conforme necessário -->
+                </select>
+
+                <select name="status" required
+                        style="flex: 1 1 160px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                    <option value="">Status</option>
+                    <option value="acessivel">♿ Acessível</option>
+                    <option value="inacessivel">🚫 Inacessível</option>
+                    <option value="desconhecido">❓ Desconhecido</option>
+                </select>
+            </div>
+
+            <button type="submit" class="botao-postar-feed"
+                    style="align-self: flex-end; padding: 8px 16px; background-color: #98FF98; border: none; border-radius: 6px; font-weight: bold;">
+                + Postar
+            </button>
+        </form>
+
+        </form>
+        <div th:each="postagem : ${postagens}" class="card">
+            <div class="card-header">
+                <img src="/img/usuarios/user1.jpg" alt="Usuário" />
+                <strong th:text="${postagem.autor.nome}">@usuario</strong>
+            </div>
+
+            <p th:text="${postagem.texto}">Conteúdo da postagem</p>
+
+            <div class="card-footer">
+                Bairro: <span th:text="${postagem.bairro}">Bairro</span>, São Luís - MA •
+                <span th:text="${#temporals.format(postagem.data, 'dd/MM/yyyy HH:mm')}">Data</span> •
+                <span class="like">❤️ 0</span><span class="comentario">💬 0</span>
+                <span th:text="${postagem.statusAcessibilidade}"
+                      th:class="'status ' +
+                (${postagem.statusAcessibilidade == '♿ Acessível'} ? 'acessivel' :
+                 (${postagem.statusAcessibilidade == '🚫 Inacessível'} ? 'inacessivel' : 'desconhecido'))"></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <img src="/img/usuarios/user6.png" alt="Usuário 4">
+                <strong>@juliana_sustentavel</strong>
+            </div>
+            <p>Encontrei esse espaço acessível no bairro Olho d’Água. Tem rampa, piso tátil e até cardápio em braille! Super recomendo 🌟</p>
+            <img src="/img/usuarios/postagem1.jpg"
+                 alt="Área acessível com rampa, piso tátil e cardápio em braille no bairro Olho d’Água"
+                 style="width: 100%; border-radius: 10px; margin-top: 10px;">
+            <p class="transcricao-img">
+                 Descrição da imagem: Espaço com entrada acessível, rampa, piso tátil, mesa com cardápio em braille e boa iluminação natural.
+            </p>
+            <div class="card-footer">
+                Bairro: Olho d’Água, São Luís - MA • 03/06/2025 14:00 •
+                <span class="like">❤️ 31</span><span class="comentario">💬 10</span><span class="acessivel">♿ Acessível</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <img src="/img/usuarios/user1.jpg" alt="Usuário 1">
+                <strong>@amanda_inclusiva</strong>
+            </div>
+            <p>Hoje consegui ir ao cinema no Renascença. Tinha rampa, mas o banheiro ainda não é adaptado. 😕</p>
+            <div class="card-footer">
+                Bairro: Renascença, São Luís - MA • 05/06/2025 10:24 • <span class="like">❤️ 12</span><span class="comentario">💬 22</span><span class="inacessivel">🚫 Inacessível</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <img src="/img/usuarios/user2.jpg" alt="Usuário 2">
+                <strong>@luiz_acessivel</strong>
+            </div>
+            <p>A nova faixa elevada da Cohama ficou ótima pra quem usa cadeira de rodas 👏👏</p>
+            <div class="card-footer">
+                Bairro: Cohama, São Luís - MA • 04/06/2025 18:42 • <span class="like">❤️ 26</span><span class="comentario">💬 5</span><span class="acessivel">♿ Acessível</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <img src="/img/usuarios/user3.jpg" alt="Usuário 3">
+                <strong>@vida_com_som</strong>
+            </div>
+            <p>Alguém sabe se tem intérprete de Libras no Hospital da Criança?</p>
+            <div class="card-footer">
+                Bairro: Centro, São Luís - MA • 04/06/2025 15:10 • <span class="like">❤️ 8</span><span class="comentario">💬 2</span><span class="desconhecido">❓ Desconhecido</span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Barra lateral -->
+    <aside class="sidebar">
+        <div class="busca">
+            <input type="text" placeholder=" Buscar postagens...">
+        </div>
+        <div class="trending">
+            <h3>📌 Tópicos em Alta</h3>
+            <ul>
+                <li>#acessibilidadeurbana</li>
+                <li>#calçada_certa</li>
+                <li>#comunidade_mobiuni</li>
+                <li>#banheiroadaptado</li>
+                <li>#sãoluísacessível</li>
+            </ul>
+        </div>
+    </aside>
+
+</div>
+
+<!-- VLibras -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+
+</body>
+</html>

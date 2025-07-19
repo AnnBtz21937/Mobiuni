@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Sobre o MobiUni</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-logo">MobiUni</div>
+    <ul class="navbar-menu">
+        <li><a href="/">Início</a></li>
+        <li><a href="/comunidade">Comunidade</a></li>
+        <li><a href="/perfil">Perfil</a></li>
+        <li><a href="/sobrenos">Sobre</a></li>
+    </ul>
+</nav>
+
+<main class="form-container">
+    <h2>Sobre o Projeto MobiUni</h2>
+    <p>
+        O <strong>MobiUni</strong> é uma plataforma digital que une mobilidade, acessibilidade e inclusão em um só lugar.
+        Inspirado pela diversidade de pessoas e suas necessidades, nosso objetivo é transformar o cotidiano urbano
+        em um ambiente mais justo, acessível e acolhedor para todos — com ou sem deficiência.
+    </p>
+
+    <p>
+        Através de um <strong>mapa interativo</strong>, os usuários podem encontrar pontos acessíveis, sinalizar locais
+        com dificuldades de mobilidade e contribuir com feedbacks. Além disso, nossa <strong>rede social inclusiva</strong>
+        permite que as pessoas compartilhem experiências, formem comunidades por tipo de deficiência e localidade,
+        e construam juntas um ambiente mais empático.
+    </p>
+
+    <h2>Por que a acessibilidade importa?</h2>
+    <p>
+        A <strong>acessibilidade</strong> não é apenas uma exigência técnica ou arquitetônica — é um direito humano.
+        Garantir acesso físico, digital e social para pessoas com deficiência é promover a equidade, a autonomia
+        e o respeito às diferenças.
+    </p>
+
+    <p>
+        Ao proporcionar uma plataforma que considera diferentes tipos e níveis de deficiência (visual, auditiva,
+        física, intelectual, múltipla), contribuímos com a <strong>quebra de barreiras invisíveis</strong> e estimulamos
+        a conscientização coletiva sobre inclusão.
+    </p>
+
+    <h2>Conscientização e mudança social</h2>
+    <p>
+        Acreditamos que a <strong>conscientização começa com a informação</strong>.
+        O MobiUni promove o engajamento entre usuários, ativistas, profissionais da saúde, arquitetos, estudantes
+        e cidadãos comuns, para que juntos possamos construir cidades mais humanas.
+    </p>
+
+    <p style="text-align: center; margin-top: 2rem;">
+        <a href="/comunidade" class="botao-verde-menta">Junte-se à comunidade ♿</a>
+    </p>
+</main>
+<!-- VLibras Plugin -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+<script>
+    const botaoContraste = document.getElementById("botao-contraste");
+
+    // Verifica se há preferência salva no localStorage
+    if (localStorage.getItem("contrasteAtivo") === "true") {
+        document.body.classList.add("alto-contraste");
+    }
+
+    botaoContraste.addEventListener("click", () => {
+        document.body.classList.toggle("alto-contraste");
+        const ativo = document.body.classList.contains("alto-contraste");
+        localStorage.setItem("contrasteAtivo", ativo);
+    });
+
+    function ativarContraste() {
+    document.body.classList.add("alto-contraste");
+}
+
+function desativarContraste() {
+    document.body.classList.remove("alto-contraste");
+}
+
+</script>
+
+</body>
+</html>

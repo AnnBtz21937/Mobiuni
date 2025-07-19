@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MobiUni - Mapa de Acessibilidade</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-logo">MobiUni</div>
+    <ul class="navbar-menu">
+        <li><button id="botao-contraste" class="botao-verde-menta">Alto Contraste</button></li>
+        <li><a href="/mapa-offline">Mapa Offline</a></li>
+        <li><a href="/comunidade">Comunidade</a></li>
+        <li><a href="/sobrenos">Sobre Nós</a></li>
+        <li><a href="/register">Criar Conta</a></li>
+        <li><a href="/login">Login</a></li>
+    </ul>
+</nav>
+
+<div class="container-horizontal">
+    <div class="mapa-esquerda">
+        <div class="search-overlay">
+            <input type="text" id="search" placeholder="Buscar bairro...">
+            <button onclick="buscarLocal()">Buscar</button>
+        </div>
+        <div id="mapa"></div>
+    </div>
+
+    <div class="painel-infos" aria-label="Informações sobre Acessibilidade">
+        <h2>Mapa de Acessibilidade</h2>
+        <!-- Botões de acessibilidade logo após a navbar -->
+        <div class="leitura-acessivel">
+            <button id="btn-leitura" aria-label="Ler conteúdo da página">🔊 Ler Página</button>
+            <button id="btn-parar" aria-label="Parar leitura em voz alta">⛔ Parar Leitura</button>
+        </div>
+        <p>Explore os pontos de acessibilidade em diferentes bairros de São Luís:</p>
+        <ul id="listaBairros"></ul>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    var mapa = L.map('mapa').setView([-2.523, -44.29], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mapa);
+
+    const pontosAcessibilidade = {
+        "Renascença": [
+            { emoji: "♿", local: "Av. Miécimo da Silva", descricao: "Rampas de acesso em calçadas amplas" },
+            { emoji: "🦯", local: "Rua das Dálias", descricao: "Piso tátil ao longo da via" },
+            { emoji: "🦻", local: "Shopping São Luís", descricao: "Sinalização sonora nas entradas" },
+            { emoji: "🧠", local: "Praça Renascença", descricao: "Ambiente calmo e com placas educativas" },
+            { emoji: "♾️", local: "Clube da Família", descricao: "Espaço sensorial para autistas" },
+            { emoji: "🗨️", local: "Centro Empresarial", descricao: "Sinalização em braile nos elevadores" }
+        ],
+        "Centro": [
+            { emoji: "♿", local: "Rua Grande", descricao: "Calçadas niveladas com rampas" },
+            { emoji: "🦯", local: "Av. Pedro II", descricao: "Sinalização tátil nas esquinas" },
+            { emoji: "🦻", local: "Palácio dos Leões", descricao: "Sistema de guia auditivo para visitantes" },
+            { emoji: "🧠", local: "Biblioteca Pública", descricao: "Espaço inclusivo e silencioso" },
+            { emoji: "♾️", local: "Casa do Maranhão", descricao: "Ambiente adaptado para TEA" },
+            { emoji: "🗨️", local: "Museu Histórico", descricao: "Painéis em braile e pictogramas" }
+        ],
+        "Bequimão": [
+            { emoji: "♿", local: "Av. Jerônimo de Albuquerque", descricao: "Rampas nas paradas de ônibus" },
+            { emoji: "🦯", local: "Rua 22", descricao: "Piso podotátil ao longo da rua" },
+            { emoji: "🦻", local: "Escola Comunitária", descricao: "Sinalização visual e sonora" },
+            { emoji: "🧠", local: "Praça do Bequimão", descricao: "Ambiente aberto e educativo" },
+            { emoji: "♾️", local: "Centro de Saúde", descricao: "Apoio e atendimento para TEA" },
+            { emoji: "🗨️", local: "Unidade de CRAS", descricao: "Placas e pictogramas informativos" }
+        ],
+        "Cohama": [
+            { emoji: "♿", local: "Av. Daniel de La Touche", descricao: "Rampas e travessias acessíveis" },
+            { emoji: "🦯", local: "Rua Boa Esperança", descricao: "Placas de orientação com braile" },
+            { emoji: "🦻", local: "Terminal Cohama", descricao: "Avisos sonoros de chegada" },
+            { emoji: "🧠", local: "Praça do Cohama", descricao: "Ambiente tranquilo e inclusivo" },
+            { emoji: "♾️", local: "Igreja Batista", descricao: "Espaço sensorial acolhedor" },
+            { emoji: "🗨️", local: "Comércio local", descricao: "Cartazes com pictogramas" }
+        ],
+        "Vinhais": [
+            { emoji: "♿", local: "Rua do Aririzal", descricao: "Faixas com rampas niveladas" },
+            { emoji: "🦯", local: "Rua Seis", descricao: "Tátil em toda a calçada" },
+            { emoji: "🦻", local: "Colégio Dom Bosco", descricao: "Sistema de alerta auditivo" },
+            { emoji: "🧠", local: "Praça dos Ipês", descricao: "Ambiente verde e informativo" },
+            { emoji: "♾️", local: "Centro Infantil", descricao: "Espaço inclusivo para autistas" },
+            { emoji: "🗨️", local: "Posto Vinhais", descricao: "Placas de atendimento acessível" }
+        ],
+        "Anil": [
+            { emoji: "♿", local: "Av. Casemiro Júnior", descricao: "Rampas largas e contínuas" },
+            { emoji: "🦯", local: "Rua Três", descricao: "Sinalização visual e piso tátil" },
+            { emoji: "🦻", local: "Igreja São José", descricao: "Sinalização sonora nos cultos" },
+            { emoji: "🧠", local: "Parque Infantil", descricao: "Placas com figuras e apoio" },
+            { emoji: "♾️", local: "Praça Central", descricao: "Área sensorial e inclusiva" },
+            { emoji: "🗨️", local: "CEI Anil", descricao: "Pictogramas nos ambientes" }
+        ],
+        "Ponta d'Areia": [
+            { emoji: "♿", local: "Av. dos Holandeses", descricao: "Rampas em toda a avenida" },
+            { emoji: "🦯", local: "Praia de São Marcos", descricao: "Piso podotátil até a areia" },
+            { emoji: "🦻", local: "Hotel Luzeiros", descricao: "Sistema de aviso luminoso" },
+            { emoji: "🧠", local: "Quiosque Acessível", descricao: "Menu em figuras" },
+            { emoji: "♾️", local: "Deck dos Pescadores", descricao: "Espaço sensorial com som ambiente" },
+            { emoji: "🗨️", local: "Ponte do Forte", descricao: "Placas com braile" }
+        ],
+        "Olho d'Água": [
+            { emoji: "♿", local: "Rua do Sol", descricao: "Rampas nas calçadas" },
+            { emoji: "🦯", local: "Praça do Olho d'Água", descricao: "Piso tátil até os bancos" },
+            { emoji: "🦻", local: "Escola Estadual", descricao: "Sistema de guia auditivo" },
+            { emoji: "🧠", local: "Centro de Apoio", descricao: "Espaço silencioso" },
+            { emoji: "♾️", local: "Clube Social", descricao: "Espaço com estímulos suaves" },
+            { emoji: "🗨️", local: "Comércio da região", descricao: "Cartazes acessíveis" }
+        ],
+        "Angelim": [
+            { emoji: "♿", local: "Av. do Angelim", descricao: "Travessias acessíveis" },
+            { emoji: "🦯", local: "Praça do Anjo", descricao: "Sinalização tátil em toda a praça" },
+            { emoji: "🦻", local: "Posto Angelim", descricao: "Alarme com luz e som" },
+            { emoji: "🧠", local: "Área de Lazer", descricao: "Brinquedos educativos" },
+            { emoji: "♾️", local: "Centro Pastoral", descricao: "Apoio sensorial TEA" },
+            { emoji: "🗨️", local: "Escola Esperança", descricao: "Pictogramas nos corredores" }
+        ],
+        "Areinha": [
+            { emoji: "♿", local: "Rua do Norte", descricao: "Rampas largas nas esquinas" },
+            { emoji: "🦯", local: "Mercado da Areinha", descricao: "Guias para deficientes visuais" },
+            { emoji: "🦻", local: "Centro de Convivência", descricao: "Sistema de som ambiente acessível" },
+            { emoji: "🧠", local: "CEI Areinha", descricao: "Apoio à deficiência intelectual" },
+            { emoji: "♾️", local: "Praça Pública", descricao: "Espaço inclusivo e calmo" },
+            { emoji: "🗨️", local: "CRAS Areinha", descricao: "Informações em braile" }
+        ]
+    };
+
+    const listaBairros = document.getElementById("listaBairros");
+
+    Object.entries(pontosAcessibilidade).forEach(([bairro, pontos]) => {
+        const item = document.createElement("li");
+        item.innerHTML = `<strong>${bairro}</strong><ul>` + pontos.map(p => `<li>${p.emoji} <strong>${p.local}</strong> – ${p.descricao}</li>`).join('') + `</ul>`;
+        listaBairros.appendChild(item);
+
+        pontos.forEach(ponto => {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${ponto.local}, São Luís MA`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const { lat, lon } = data[0];
+                        L.marker([lat, lon]).addTo(mapa)
+                            .bindPopup(`${ponto.emoji} <strong>${ponto.local}</strong><br>${ponto.descricao}`);
+                    }
+                });
+        });
+    });
+</script>
+
+<!-- VLibras Plugin -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+<script>
+    const botaoContraste = document.getElementById("botao-contraste");
+
+    // Verifica se há preferência salva no localStorage
+    if (localStorage.getItem("contrasteAtivo") === "true") {
+        document.body.classList.add("alto-contraste");
+    }
+
+    botaoContraste.addEventListener("click", () => {
+        document.body.classList.toggle("alto-contraste");
+        const ativo = document.body.classList.contains("alto-contraste");
+        localStorage.setItem("contrasteAtivo", ativo);
+    });
+
+    function ativarContraste() {
+    document.body.classList.add("alto-contraste");
+}
+
+function desativarContraste() {
+    document.body.classList.remove("alto-contraste");
+}
+
+</script>
+
+</body>
+</html>

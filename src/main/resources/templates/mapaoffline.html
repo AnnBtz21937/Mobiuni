@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa Offline</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-logo">MobiUni</div>
+    <ul class="navbar-menu">
+        <li><button id="botao-contraste" class="botao-verde-menta">Alto Contraste</button></li>
+        <li><a href="/index">Mapa</a></li>
+        <li><a href="/comunidade">Comunidade</a></li>
+        <li><a href="/perfil">Perfil</a></li>
+    </ul>
+</nav>
+
+<div class="container-horizontal">
+    <div class="mapa-esquerda">
+        <div id="mapa" style="height: 100%;"></div>
+    </div>
+    <div class="painel-infos">
+        <h2>Mapa Offline</h2>
+        <div class="leitura-acessivel">
+            <button id="btn-leitura" aria-label="Ler conteúdo da página">🔊 Ler Página</button>
+            <button id="btn-parar" aria-label="Parar leitura em voz alta">⛔ Parar Leitura</button>
+        </div>
+        <p>Aqui você pode traçar e salvar rotas acessíveis mesmo sem conexão com a internet.</p>
+        <label for="nomeInicio">Nome do ponto inicial:</label>
+        <input type="text" id="nomeInicio" placeholder="Ex: Avenida 1">
+        <div>
+            <label for="nomeFim">Nome do ponto final:</label>
+            <input type="text" id="nomeFim" placeholder="Ex: Rua B">
+        </div>
+
+        <button class="botao-verde-menta" onclick="salvarRota()">Salvar Rota</button>
+        <h3>Rotas Salvas</h3>
+        <ul id="listaRotas"></ul>
+    </div>
+</div>
+
+<script>
+    const mapa = L.map('mapa').setView([-2.5298, -44.3028], 13); // São Luís
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+    }).addTo(mapa);
+
+    let rotaAtual = [];
+    mapa.on('click', function (e) {
+        const marcador = L.marker(e.latlng).addTo(mapa);
+        rotaAtual.push(e.latlng);
+    });
+
+    function buscarLocal() {
+    const local = document.getElementById('busca').value;
+    if (!local) return;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(local)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.length > 0) {
+                const { lat, lon } = data[0];
+                const ponto = L.latLng(lat, lon);
+                L.marker(ponto).addTo(mapa).bindPopup("Local encontrado").openPopup();
+                mapa.setView(ponto, 15);
+                rotaAtual.push(ponto);
+            } else {
+                alert("Local não encontrado");
+            }
+        })
+        .catch(() => alert("Erro na busca"));
+}
+
+    function salvarRota() {
+    const inicioNome = document.getElementById('nomeInicio').value;
+    const fimNome = document.getElementById('nomeFim').value;
+
+    if (!inicioNome || !fimNome || rotaAtual.length < 2) {
+        alert("Marque ao menos 2 pontos e preencha os nomes.");
+        return;
+    }
+
+    let rotas = JSON.parse(localStorage.getItem('rotas')) || [];
+
+    rotas.push({
+        nomeInicio: inicioNome,
+        nomeFim: fimNome,
+        pontos: rotaAtual
+    });
+
+    localStorage.setItem('rotas', JSON.stringify(rotas));
+    rotaAtual = [];
+    document.getElementById('nomeInicio').value = '';
+    document.getElementById('nomeFim').value = '';
+    document.getElementById('busca').value = '';
+    alert("Rota salva com sucesso!");
+    listarRotas();
+}
+
+
+    function listarRotas() {
+        let lista = document.getElementById('listaRotas');
+        lista.innerHTML = '';
+        let rotas = JSON.parse(localStorage.getItem('rotas')) || [];
+        rotas.forEach((rota, index) => {
+            let item = document.createElement('li');
+            item.innerText = `Rota ${index + 1}`;
+            item.style.cursor = 'pointer';
+            item.onclick = () => {
+                rota.forEach(ponto => {
+                    L.marker(ponto).addTo(mapa);
+                });
+            };
+            lista.appendChild(item);
+        });
+    }
+
+    listarRotas();
+</script>
+<!-- VLibras Plugin -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+<script>
+    const botaoContraste = document.getElementById("botao-contraste");
+
+    // Verifica se há preferência salva no localStorage
+    if (localStorage.getItem("contrasteAtivo") === "true") {
+        document.body.classList.add("alto-contraste");
+    }
+
+    botaoContraste.addEventListener("click", () => {
+        document.body.classList.toggle("alto-contraste");
+        const ativo = document.body.classList.contains("alto-contraste");
+        localStorage.setItem("contrasteAtivo", ativo);
+    });
+
+    function ativarContraste() {
+    document.body.classList.add("alto-contraste");
+}
+
+function desativarContraste() {
+    document.body.classList.remove("alto-contraste");
+}
+
+</script>
+<script>
+    fetch('/api/pontos')
+        .then(response => response.json())
+        .then(pontos => {
+            pontos.forEach(ponto => {
+                L.marker([ponto.latitude, ponto.longitude])
+                    .bindPopup(`<strong>${ponto.bairro}</strong><br>${ponto.tipo}<br>${ponto.descricao}`)
+                    .addTo(mapa);
+            });
+        });
+
+</script>
+
+</body>
+</html>

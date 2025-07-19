@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - MobiUni</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="form-container">
+    <!-- Botões de acessibilidade logo após a navbar -->
+    <div class="leitura-acessivel">
+        <button id="btn-leitura" aria-label="Ler conteúdo da página">🔊 Ler Página</button>
+        <button id="btn-parar" aria-label="Parar leitura em voz alta">⛔ Parar Leitura</button>
+    </div>
+    <h2>MobiUni</h2>
+    <h2>Login</h2>
+    <form method="post" action="/home">
+        <input type="text" name="email" placeholder="Seu e-mail" required>
+        <input type="password" name="senha" placeholder="Sua senha" required>
+        <button type="submit">Entrar</button>
+    </form>
+
+</div>
+<!-- VLibras -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+</body>
+</html>

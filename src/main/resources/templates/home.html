@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MobiUni - Mapa de Acessibilidade</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-logo">MobiUni</div>
+    <ul class="navbar-menu">
+        <li><a href="#">Acessibilidade</a></li>
+        <li><button id="botao-contraste" class="botao-verde-menta">Alto Contraste</button></li>
+        <li><a href="/mapa-offline">Mapa Offline</a></li>
+        <li><a href="/comunidade">Comunidade</a></li>
+        <li><a href="/sobrenos">Sobre Nós</a></li>
+        <li><a href="/perfil">Meu Perfil</a></li>
+        <li><a href="/logout">Sair</a></li>
+    </ul>
+</nav>
+
+<div class="container-horizontal">
+    <div class="mapa-esquerda">
+        <div class="search-overlay">
+            <input type="text" id="search" placeholder="Buscar bairro ou cidade...">
+            <button onclick="buscarLocal()">Buscar</button>
+        </div>
+        <div id="mapa"></div>
+    </div>
+
+    <div class="painel-infos" aria-label="Informações sobre Acessibilidade">
+        <h2>Mapa de Acessibilidade</h2>
+        <p>Busque um bairro ou cidade para ver detalhes de acessibilidade.</p>
+        <ul id="listaBairros">
+            <!-- Resultados aparecerão aqui -->
+        </ul>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    var mapa = L.map('mapa').setView([-2.5387, -44.2825], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mapa);
+
+    function buscarLocal() {
+        const local = document.getElementById("search").value;
+        if (!local) return;
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${local}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length > 0) {
+                    const { lat, lon, display_name } = data[0];
+                    mapa.setView([lat, lon], 15);
+                    L.marker([lat, lon]).addTo(mapa).bindPopup(display_name).openPopup();
+
+                    document.getElementById("nomeBairro").innerText = `🔹 ${display_name}`;
+                    document.getElementById("acessibilidadeBairro").innerText = "♿ Calçadas regulares, rampas e sinalização tátil.";
+
+                    const icones = `
+                        ✅ 🦽 Rampa de acesso<br>
+                        ✅ 🔊 Sinal sonoro<br>
+                        ✅ 👁️‍🗨️ Sinalização tátil<br>
+                        ✅ 🚻 Banheiro acessível
+                    `;
+                    document.getElementById("icones").innerHTML = icones;
+                } else {
+                    alert("Local não encontrado.");
+                }
+            });
+    }
+</script>
+
+<!-- VLibras -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+</body>
+</html>

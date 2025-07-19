@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - MobiUni</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="form-container">
+    <!-- Botões de acessibilidade logo após a navbar -->
+    <div class="leitura-acessivel">
+        <button id="btn-leitura" aria-label="Ler conteúdo da página">🔊 Ler Página</button>
+        <button id="btn-parar" aria-label="Parar leitura em voz alta">⛔ Parar Leitura</button>
+    </div>
+    <h2>Crie sua conta</h2>
+    <form method="post" action="/register">
+        <input type="text" name="nome" placeholder="Nome completo" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+
+        <!-- Pergunta: Você é PCD? -->
+        <p style="font-weight: bold; color: #4B3869;">Você é PCD (Pessoa com Deficiência)?</p>
+        <div class="radio-group">
+            <label class="radio-custom">
+                <input type="radio" name="pcd" value="sim" onchange="mostrarTipos()">
+                <span>Sim</span>
+            </label>
+            <label class="radio-custom">
+                <input type="radio" name="pcd" value="nao" onchange="mostrarTipos()">
+                <span>Não</span>
+            </label>
+        </div>
+
+        <!-- Checklist de tipos de deficiência (inicialmente oculto) -->
+        <div id="tiposDeficiencia" style="display: none; margin-top: 1rem;">
+            <label style="font-weight: bold; color: #4B3869;">Tipos de Deficiência:</label><br><br>
+            <div class="checkbox-group">
+                <label class="checkbox-modern">
+                    <input type="checkbox" name="tiposDeficiencia" value="Visual">
+                    <span>Visual</span>
+                </label>
+                <label class="checkbox-modern">
+                    <input type="checkbox" name="tiposDeficiencia" value="Auditiva">
+                    <span>Auditiva</span>
+                </label>
+                <label class="checkbox-modern">
+                    <input type="checkbox" name="tiposDeficiencia" value="Física">
+                    <span>Física</span>
+                </label>
+                <label class="checkbox-modern">
+                    <input type="checkbox" name="tiposDeficiencia" value="Intelectual">
+                    <span>Intelectual</span>
+                </label>
+                <label class="checkbox-modern">
+                    <input type="checkbox" name="tiposDeficiencia" value="Múltipla">
+                    <span>Múltipla</span>
+                </label>
+            </div>
+        </div>
+        <button type="submit">Cadastrar</button>
+    </form>
+</div>
+<script>
+    function mostrarTipos() {
+        const selecionado = document.querySelector('input[name="pcd"]:checked');
+        const tipoDiv = document.getElementById('tiposDeficiencia');
+
+        if (selecionado && selecionado.value === 'sim') {
+            tipoDiv.style.display = 'block';
+        } else {
+            tipoDiv.style.display = 'none';
+            const checkboxes = tipoDiv.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+    }
+</script>
+<!-- VLibras -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+</body>
+
+</html>

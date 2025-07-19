@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil - MobiUni</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-logo">MobiUni</div>
+        <ul class="navbar-menu">
+            <li><button id="botao-contraste" class="botao-verde-menta">Alto Contraste</button></li>
+            <li><a href="/index">Mapa</a></li>
+            <li><a href="/comunidade">Comunidade</a></li>
+            <li><a href="/sobrenos">Sobre Nós</a></li>
+            <li><a href="/">Sair</a></li>
+        </ul>
+    </nav>
+
+<div class="container">
+    <section class="perfil-usuario">
+        <div class="leitura-acessivel">
+            <button id="btn-leitura" aria-label="Ler conteúdo da página">🔊 Ler Página</button>
+            <button id="btn-parar" aria-label="Parar leitura em voz alta">⛔ Parar Leitura</button>
+        </div>
+        <h2>Meu Perfil</h2>
+
+        <div class="info-usuario">
+            <p><strong>Nome:</strong> <span th:text="${usuario.nome}">Ana</span></p>
+            <p><strong>Email:</strong> <span th:text="${usuario.email}">ana@email.com</span></p>
+            <p><strong>PCD:</strong> <span th:text="${usuario.pcd} ? 'Sim' : 'Não'">Sim</span></p>
+        </div>
+
+        <form action="/usuario/atualizar-acessibilidade" method="post">
+            <input type="hidden" name="usuarioId" th:value="${usuario.id}" />
+
+            <label for="modo">Modo de Acessibilidade:</label>
+            <select name="modo" id="modo">
+                <option value="visual" th:selected="${usuario.modoAcessibilidade == 'visual'}">Visual</option>
+                <option value="auditiva" th:selected="${usuario.modoAcessibilidade == 'auditiva'}">Auditiva</option>
+                <option value="fisica" th:selected="${usuario.modoAcessibilidade == 'fisica'}">Física</option>
+                <option value="intelectual" th:selected="${usuario.modoAcessibilidade == 'intelectual'}">Intelectual</option>
+                <option value="multipla" th:selected="${usuario.modoAcessibilidade == 'multipla'}">Múltipla</option>
+            </select>
+
+            <button type="submit" class="botao-salvar">Salvar Alterações</button>
+        </form>
+    </section>
+</div>
+    <!-- VLibras Plugin -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+    <script>
+        const botaoLeitura = document.getElementById('btn-leitura');
+
+        botaoLeitura.addEventListener('click', () => {
+          const texto = document.body.innerText;
+
+          const utterance = new SpeechSynthesisUtterance(texto);
+          utterance.lang = 'pt-BR';
+          utterance.rate = 1;
+          speechSynthesis.cancel(); // Interrompe se estiver lendo
+          speechSynthesis.speak(utterance);
+        });
+    </script>
+    <script>
+        document.getElementById('btn-leitura').addEventListener('click', () => {
+            const texto = document.body.innerText;
+            const utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = 'pt-BR';
+            speechSynthesis.cancel(); // Garante que reinicie
+            speechSynthesis.speak(utterance);
+        });
+
+        document.getElementById('btn-parar').addEventListener('click', () => {
+            speechSynthesis.cancel();
+        });
+    </script>
+    <script>
+        const btnLeitura = document.getElementById('btn-leitura');
+        const btnParar = document.getElementById('btn-parar');
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'l') {
+                btnLeitura.click(); // Alt + L → Ler
+            }
+            if (e.altKey && e.key.toLowerCase() === 'p') {
+                btnParar.click(); // Alt + P → Parar
+            }
+        });
+    </script>
+    <script>
+        const botaoContraste = document.getElementById("botao-contraste");
+
+        // Verifica se há preferência salva no localStorage
+        if (localStorage.getItem("contrasteAtivo") === "true") {
+            document.body.classList.add("alto-contraste");
+        }
+
+        botaoContraste.addEventListener("click", () => {
+            document.body.classList.toggle("alto-contraste");
+            const ativo = document.body.classList.contains("alto-contraste");
+            localStorage.setItem("contrasteAtivo", ativo);
+        });
+
+        function ativarContraste() {
+        document.body.classList.add("alto-contraste");
+    }
+
+    function desativarContraste() {
+        document.body.classList.remove("alto-contraste");
+    }
+
+    </script>
+
+</body>
+</html>

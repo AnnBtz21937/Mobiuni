@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Ponto Acessível</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-logo">MobiUni</div>
+    <ul class="navbar-menu">
+        <li><a href="/">Início</a></li>
+        <li><a href="/mapa">Mapa</a></li>
+        <li><a href="/cadastro-ponto">Cadastrar Ponto</a></li>
+        <li><a href="/comunidade">Comunidade</a></li>
+    </ul>
+</div>
+
+<div class="form-container">
+    <h2>Cadastro de Ponto Acessível</h2>
+    <form method="POST" action="/ponto/salvar">
+        <label for="bairro">Bairro:</label>
+        <input type="text" id="bairro" name="bairro" required>
+
+        <label for="tipo">Tipo de Acessibilidade:</label>
+        <select id="tipo" name="tipo" required>
+            <option value="acessivel">♿ Acessível</option>
+            <option value="inacessivel">🚫 Inacessível</option>
+            <option value="desconhecido">❓ Desconhecido</option>
+        </select>
+
+        <label for="descricao">Descrição:</label>
+        <input type="text" id="descricao" name="descricao">
+
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude" required>
+
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude" required>
+
+        <button type="submit">Cadastrar Ponto</button>
+    </form>
+</div>
+<!-- VLibras Plugin -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+<script>
+    const botaoLeitura = document.getElementById('btn-leitura');
+
+    botaoLeitura.addEventListener('click', () => {
+      const texto = document.body.innerText;
+
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1;
+      speechSynthesis.cancel(); // Interrompe se estiver lendo
+      speechSynthesis.speak(utterance);
+    });
+</script>
+<script>
+    document.getElementById('btn-leitura').addEventListener('click', () => {
+        const texto = document.body.innerText;
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        speechSynthesis.cancel(); // Garante que reinicie
+        speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        speechSynthesis.cancel();
+    });
+</script>
+<script>
+    const btnLeitura = document.getElementById('btn-leitura');
+    const btnParar = document.getElementById('btn-parar');
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'l') {
+            btnLeitura.click(); // Alt + L → Ler
+        }
+        if (e.altKey && e.key.toLowerCase() === 'p') {
+            btnParar.click(); // Alt + P → Parar
+        }
+    });
+</script>
+<script>
+    const botaoContraste = document.getElementById("botao-contraste");
+
+    // Verifica se há preferência salva no localStorage
+    if (localStorage.getItem("contrasteAtivo") === "true") {
+        document.body.classList.add("alto-contraste");
+    }
+
+    botaoContraste.addEventListener("click", () => {
+        document.body.classList.toggle("alto-contraste");
+        const ativo = document.body.classList.contains("alto-contraste");
+        localStorage.setItem("contrasteAtivo", ativo);
+    });
+
+    function ativarContraste() {
+    document.body.classList.add("alto-contraste");
+}
+
+function desativarContraste() {
+    document.body.classList.remove("alto-contraste");
+}
+
+</script>
+
+</body>
+</html>
